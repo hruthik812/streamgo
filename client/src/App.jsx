@@ -8,6 +8,7 @@ function App() {
   return (
     <>
       <h1>This is first commit by Vikas</h1>
+      <h2>This commit is by hruthik</h2>
     </>
   )
 }
