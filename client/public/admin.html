@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chatterly Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Baloo+2:wght@400;600;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--pink:#FF6B9D;--orange:#FF9E44;--yellow:#FFD166;--green:#06D6A0;--blue:#4CC9F0;--purple:#9B5DE5;--red:#FF4757;--bg:#0F0F1A;--card:#1A1A2E;--border:rgba(255,255,255,0.07);--text:#F0F0F0;--muted:#8888AA;--sw:240px}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex}
+    /* LOGIN */
+    .login-screen{position:fixed;inset:0;background:radial-gradient(ellipse at 30% 30%,rgba(155,93,229,0.15),transparent 60%),radial-gradient(ellipse at 80% 80%,rgba(76,201,240,0.1),transparent 60%),#0F0F1A;display:flex;align-items:center;justify-content:center;z-index:1000}
+    .login-card{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:40px 36px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,0.5);animation:slideUp 0.4s cubic-bezier(0.175,0.885,0.32,1.275)}
+    @keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+    .login-logo{font-family:'Baloo 2',cursive;font-size:1.8rem;font-weight:800;text-align:center;margin-bottom:4px;background:linear-gradient(135deg,var(--pink),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .login-sub{text-align:center;color:var(--muted);font-size:0.85rem;font-weight:600;margin-bottom:28px}
+    .fg{margin-bottom:16px}
+    .fl{font-size:0.75rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:6px}
+    .fi{width:100%;background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:12px;padding:11px 16px;font-family:'Nunito',sans-serif;font-size:.92rem;font-weight:600;color:var(--text);outline:none;transition:border-color .2s}
+    .fi:focus{border-color:var(--purple)}.fi::placeholder{color:var(--muted)}
+    .btn-login{width:100%;background:linear-gradient(135deg,var(--purple),var(--blue));color:white;border:none;border-radius:12px;padding:13px;font-family:'Nunito',sans-serif;font-size:1rem;font-weight:800;cursor:pointer;box-shadow:0 4px 20px rgba(155,93,229,0.4);transition:transform .15s;margin-top:4px}
+    .btn-login:hover{transform:translateY(-2px)}
+    .lerr{background:rgba(255,71,87,0.1);border:1.5px solid rgba(255,71,87,0.3);border-radius:10px;padding:10px 14px;font-size:.82rem;font-weight:700;color:var(--red);margin-bottom:14px;display:none}
+    .lerr.show{display:block}
+    /* SIDEBAR */
+    .sidebar{width:var(--sw);min-height:100vh;background:var(--card);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:100}
+    .sb-logo{padding:22px 18px 16px;border-bottom:1px solid var(--border)}
+    .sb-logo-t{font-family:'Baloo 2',cursive;font-size:1.25rem;font-weight:800;background:linear-gradient(135deg,var(--pink),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .sb-logo-s{font-size:.7rem;font-weight:700;color:var(--muted);margin-top:2px}
+    .sb-nav{flex:1;padding:14px 10px;display:flex;flex-direction:column;gap:3px}
+    .ni{display:flex;align-items:center;gap:11px;padding:10px 13px;border-radius:11px;font-size:.86rem;font-weight:700;color:var(--muted);cursor:pointer;border:none;background:transparent;width:100%;text-align:left;transition:all .2s}
+    .ni:hover{background:rgba(255,255,255,0.04);color:var(--text)}
+    .ni.active{background:linear-gradient(135deg,rgba(155,93,229,0.18),rgba(76,201,240,0.08));color:var(--purple);border:1px solid rgba(155,93,229,0.18)}
+    .ni-icon{font-size:1rem;width:20px;text-align:center}
+    .sb-foot{padding:14px;border-top:1px solid var(--border)}
+    .adm-badge{display:flex;align-items:center;gap:9px}
+    .adm-av{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--purple),var(--blue));display:flex;align-items:center;justify-content:center;font-size:.82rem;font-weight:800;color:white}
+    .adm-name{font-size:.8rem;font-weight:800;color:var(--text)}
+    .adm-role{font-size:.68rem;font-weight:700;color:var(--muted)}
+    .btn-so{margin-top:9px;width:100%;background:rgba(255,71,87,0.1);border:1px solid rgba(255,71,87,0.2);border-radius:9px;padding:8px;font-family:'Nunito',sans-serif;font-size:.8rem;font-weight:800;color:var(--red);cursor:pointer;transition:all .2s}
+    .btn-so:hover{background:rgba(255,71,87,0.2)}
+    /* MAIN */
+    .mc{margin-left:var(--sw);flex:1;min-height:100vh;display:flex;flex-direction:column}
+    .topbar{padding:16px 26px;background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+    .tb-title{font-family:'Baloo 2',cursive;font-size:1.3rem;font-weight:800;color:var(--text)}
+    .tb-title span{font-size:.82rem;font-weight:700;color:var(--muted);font-family:'Nunito',sans-serif;margin-left:7px}
+    .ob{display:flex;align-items:center;gap:6px;background:rgba(6,214,160,0.1);border:1px solid rgba(6,214,160,0.25);border-radius:999px;padding:5px 13px;font-size:.8rem;font-weight:700;color:var(--green)}
+    .dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 1.5s infinite}
+    @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(1.3)}}
+    /* PAGES */
+    .page{display:none;padding:24px;flex:1}.page.active{display:block}
+    /* STATS */
+    .sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:24px}
+    .sc{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s}
+    .sc:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
+    .sc::before{content:'';position:absolute;top:-40px;right:-40px;width:90px;height:90px;border-radius:50%;opacity:.07}
+    .sc.pk::before{background:var(--pink)}.sc.pp::before{background:var(--purple)}.sc.bl::before{background:var(--blue)}.sc.gr::before{background:var(--green)}.sc.or::before{background:var(--orange)}.sc.rd::before{background:var(--red)}
+    .si{font-size:1.5rem;margin-bottom:8px}
+    .sv{font-family:'Baloo 2',cursive;font-size:1.9rem;font-weight:800;line-height:1;margin-bottom:3px}
+    .sc.pk .sv{color:var(--pink)}.sc.pp .sv{color:var(--purple)}.sc.bl .sv{color:var(--blue)}.sc.gr .sv{color:var(--green)}.sc.or .sv{color:var(--orange)}.sc.rd .sv{color:var(--red)}
+    .sl{font-size:.74rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+    /* SECTION */
+    .sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+    .st{font-family:'Baloo 2',cursive;font-size:1.15rem;font-weight:800;color:var(--text)}
+    .sbadge{background:rgba(155,93,229,0.14);border:1px solid rgba(155,93,229,0.22);border-radius:999px;padding:3px 11px;font-size:.72rem;font-weight:800;color:var(--purple)}
+    /* TABLE */
+    .tw{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+    .ts{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+    .si2{background:rgba(255,255,255,0.04);border:1.5px solid var(--border);border-radius:9px;padding:7px 13px;font-family:'Nunito',sans-serif;font-size:.83rem;font-weight:600;color:var(--text);outline:none;width:240px;transition:border-color .2s}
+    .si2:focus{border-color:var(--purple)}.si2::placeholder{color:var(--muted)}
+    table{width:100%;border-collapse:collapse}
+    thead tr{background:rgba(255,255,255,.03)}
+    th{padding:11px 15px;text-align:left;font-size:.7rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;border-bottom:1px solid var(--border)}
+    td{padding:12px 15px;font-size:.83rem;font-weight:600;color:var(--text);border-bottom:1px solid rgba(255,255,255,.04)}
+    tr:last-child td{border-bottom:none}
+    tr:hover td{background:rgba(255,255,255,.02)}
+    .badge{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:3px 9px;font-size:.7rem;font-weight:800}
+    .bg{background:rgba(6,214,160,.12);color:var(--green);border:1px solid rgba(6,214,160,.2)}
+    .br{background:rgba(255,71,87,.12);color:var(--red);border:1px solid rgba(255,71,87,.2)}
+    .bp{background:rgba(155,93,229,.12);color:var(--purple);border:1px solid rgba(155,93,229,.2)}
+    .bb{background:rgba(76,201,240,.12);color:var(--blue);border:1px solid rgba(76,201,240,.2)}
+    .bo{background:rgba(255,158,68,.12);color:var(--orange);border:1px solid rgba(255,158,68,.2)}
+    .bpk{background:rgba(255,107,157,.12);color:var(--pink);border:1px solid rgba(255,107,157,.2)}
+    /* ACTION BTNS */
+    .abs{display:flex;gap:5px}
+    .ab{border:none;border-radius:7px;padding:5px 11px;font-family:'Nunito',sans-serif;font-size:.72rem;font-weight:800;cursor:pointer;transition:all .15s}
+    .ab-ban{background:rgba(255,158,68,.12);color:var(--orange);border:1px solid rgba(255,158,68,.2)}.ab-ban:hover{background:rgba(255,158,68,.25)}
+    .ab-unban{background:rgba(6,214,160,.12);color:var(--green);border:1px solid rgba(6,214,160,.2)}.ab-unban:hover{background:rgba(6,214,160,.25)}
+    .ab-del{background:rgba(255,71,87,.12);color:var(--red);border:1px solid rgba(255,71,87,.2)}.ab-del:hover{background:rgba(255,71,87,.25)}
+    /* LIVE */
+    .lg{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+    .lc{background:var(--card);border:1px solid rgba(6,214,160,.18);border-radius:14px;padding:16px;position:relative;overflow:hidden}
+    .lc::before{content:'LIVE';position:absolute;top:10px;right:10px;background:rgba(255,71,87,.15);border:1px solid rgba(255,71,87,.3);border-radius:999px;padding:2px 8px;font-size:.62rem;font-weight:900;color:var(--red);letter-spacing:.1em;animation:lp 1.5s infinite}
+    @keyframes lp{0%,100%{opacity:1}50%{opacity:.4}}
+    .lu{display:flex;align-items:center;gap:9px;margin-bottom:9px}
+    .la{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--purple),var(--pink));display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:800;color:white}
+    .lv{font-size:.72rem;font-weight:900;color:var(--muted)}
+    .lm{font-size:.72rem;color:var(--muted);font-weight:700}
+    .empty{text-align:center;padding:44px 20px;color:var(--muted)}
+    .ei{font-size:2.2rem;margin-bottom:8px}.et{font-size:.88rem;font-weight:700}
+    /* SETTINGS */
+    .setg{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px}
+    .setc{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px}
+    .setct{font-family:'Baloo 2',cursive;font-size:1.08rem;font-weight:800;margin-bottom:18px;color:var(--text)}
+    .setr{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--border)}
+    .setr:last-of-type{border-bottom:none}
+    .setn{font-size:.86rem;font-weight:800;color:var(--text)}
+    .setd{font-size:.72rem;font-weight:600;color:var(--muted);margin-top:2px}
+    .toggle{width:42px;height:22px;background:#333;border-radius:999px;cursor:pointer;position:relative;transition:background .2s;border:none;flex-shrink:0}
+    .toggle.on{background:var(--green)}
+    .toggle::after{content:'';position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:white;transition:left .2s}
+    .toggle.on::after{left:23px}
+    .set-inp{background:rgba(255,255,255,.05);border:1.5px solid var(--border);border-radius:9px;padding:6px 11px;font-family:'Nunito',sans-serif;font-size:.86rem;font-weight:700;color:var(--text);outline:none;width:110px}
+    .set-inp:focus{border-color:var(--purple)}
+    .btn-save{background:linear-gradient(135deg,var(--purple),var(--blue));color:white;border:none;border-radius:11px;padding:10px 22px;font-family:'Nunito',sans-serif;font-size:.88rem;font-weight:800;cursor:pointer;margin-top:14px;width:100%;box-shadow:0 4px 14px rgba(155,93,229,.3);transition:transform .15s}
+    .btn-save:hover{transform:translateY(-2px)}
+    .btn-ref{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:9px;padding:7px 12px;font-family:'Nunito',sans-serif;font-size:.8rem;font-weight:800;color:var(--muted);cursor:pointer;transition:all .2s}
+    .btn-ref:hover{background:rgba(255,255,255,.1);color:var(--text)}
+    /* reel thumb */
+    .rt{width:44px;height:44px;border-radius:9px;object-fit:cover;background:#333}
+    /* toast */
+    .toast{position:fixed;top:22px;right:22px;background:var(--card);border:1px solid var(--border);border-radius:11px;padding:11px 18px;font-size:.83rem;font-weight:800;color:var(--text);box-shadow:0 8px 24px rgba(0,0,0,.3);z-index:9999;transform:translateY(-80px);opacity:0;transition:all .35s cubic-bezier(0.175,0.885,0.32,1.275)}
+    .toast.show{transform:translateY(0);opacity:1}
+    .hidden{display:none!important}
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-screen" id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">Chatterly 🛡️</div>
+    <div class="login-sub">Admin Dashboard · Authorized Access Only</div>
+    <div class="lerr" id="lerr"></div>
+    <div class="fg"><label class="fl">Admin Email</label><input class="fi" id="ae" type="email" placeholder="admin@chatterly.com" value="admin@chatterly.com"/></div>
+    <div class="fg"><label class="fl">Password</label><input class="fi" id="ap" type="password" placeholder="••••••••" value="admin123"/></div>
+    <button class="btn-login" id="login-btn">Login to Dashboard →</button>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar" style="display:none">
+  <div class="sb-logo"><div class="sb-logo-t">Chatterly 🎉</div><div class="sb-logo-s">Admin Dashboard</div></div>
+  <nav class="sb-nav">
+    <button class="ni active" data-p="dashboard"><span class="ni-icon">📊</span>Dashboard</button>
+    <button class="ni" data-p="users"><span class="ni-icon">👥</span>Users</button>
+    <button class="ni" data-p="reels"><span class="ni-icon">🎬</span>Reels</button>
+    <button class="ni" data-p="live"><span class="ni-icon">💬</span>Live Chats</button>
+    <button class="ni" data-p="history"><span class="ni-icon">🗂️</span>Chat History</button>
+    <button class="ni" data-p="settings"><span class="ni-icon">⚙️</span>Settings</button>
+  </nav>
+  <div class="sb-foot">
+    <div class="adm-badge"><div class="adm-av">A</div><div><div class="adm-name" id="adm-name">Admin</div><div class="adm-role">Super Admin</div></div></div>
+    <button class="btn-so" id="so-btn">Sign Out</button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="mc" id="mc" style="display:none">
+  <div class="topbar">
+    <div class="tb-title" id="tb-title">Dashboard <span>Overview</span></div>
+    <div class="ob"><span class="dot"></span><span id="lc-count">0</span> online</div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="page active" id="page-dashboard">
+    <div class="sg">
+      <div class="sc pp"><div class="si">👥</div><div class="sv" id="s-users">0</div><div class="sl">Total Users</div></div>
+      <div class="sc bl"><div class="si">🌐</div><div class="sv" id="s-online">0</div><div class="sl">Online Now</div></div>
+      <div class="sc pk"><div class="si">🎬</div><div class="sv" id="s-reels">0</div><div class="sl">Total Reels</div></div>
+      <div class="sc gr"><div class="si">💬</div><div class="sv" id="s-chats">0</div><div class="sl">Total Chats</div></div>
+      <div class="sc or"><div class="si">⚡</div><div class="sv" id="s-active">0</div><div class="sl">Active Chats</div></div>
+      <div class="sc rd"><div class="si">🚫</div><div class="sv" id="s-banned">0</div><div class="sl">Banned Users</div></div>
+    </div>
+    <div class="sh"><div class="st">Recent Sessions</div><button class="btn-ref" onclick="loadDashboard()">↻ Refresh</button></div>
+    <div class="tw"><table><thead><tr><th>Session ID</th><th>User A</th><th>User B</th><th>Messages</th><th>Duration</th><th>Status</th></tr></thead><tbody id="rc-body"></tbody></table></div>
+  </div>
+
+  <!-- USERS -->
+  <div class="page" id="page-users">
+    <div class="sh"><div class="st">All Users</div><button class="btn-ref" onclick="loadUsers()">↻ Refresh</button></div>
+    <div class="tw">
+      <div class="ts"><input class="si2" id="u-search" placeholder="🔍 Search name or email…"/><span class="sbadge" id="u-badge">0 users</span></div>
+      <table><thead><tr><th>User</th><th>Email</th><th>Chats</th><th>Last Seen</th><th>Status</th><th>Actions</th></tr></thead><tbody id="u-body"></tbody></table>
+    </div>
+  </div>
+
+  <!-- REELS -->
+  <div class="page" id="page-reels">
+    <div class="sh"><div class="st">All Reels</div><button class="btn-ref" onclick="loadReels()">↻ Refresh</button></div>
+    <div class="tw">
+      <div class="ts"><input class="si2" id="r-search" placeholder="🔍 Search reels…"/><span class="sbadge" id="r-badge">0 reels</span></div>
+      <table><thead><tr><th>Video</th><th>Caption</th><th>Posted By</th><th>Likes</th><th>Views</th><th>Comments</th><th>Date</th><th>Actions</th></tr></thead><tbody id="r-body"></tbody></table>
+    </div>
+  </div>
+
+  <!-- LIVE CHATS -->
+  <div class="page" id="page-live">
+    <div class="sh"><div class="st">Live Active Chats</div><button class="btn-ref" onclick="loadLive()">↻ Refresh</button></div>
+    <div class="lg" id="l-grid"></div>
+    <div class="empty hidden" id="l-empty"><div class="ei">💬</div><div class="et">No active chats right now</div></div>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="page" id="page-history">
+    <div class="sh"><div class="st">Chat History</div><button class="btn-ref" onclick="loadHistory()">↻ Refresh</button></div>
+    <div class="tw"><table><thead><tr><th>Session</th><th>User A</th><th>User B</th><th>Messages</th><th>Started</th><th>Duration</th></tr></thead><tbody id="h-body"></tbody></table></div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="page" id="page-settings">
+    <div class="setg">
+      <div class="setc">
+        <div class="setct">🔧 Site Controls</div>
+        <div class="setr"><div><div class="setn">Maintenance Mode</div><div class="setd">Blocks new chats</div></div><button class="toggle" id="t-maint" onclick="toggleSetting('maintenanceMode')"></button></div>
+        <div class="setr"><div><div class="setn">Allow Guests</div><div class="setd">Chat without an account</div></div><button class="toggle on" id="t-guests" onclick="toggleSetting('allowGuests')"></button></div>
+        <button class="btn-save" onclick="saveSettings()">Save Changes ✓</button>
+      </div>
+      <div class="setc">
+        <div class="setct">💬 Chat Settings</div>
+        <div class="setr"><div><div class="setn">Max Message Length</div><div class="setd">Characters per message</div></div><input class="set-inp" id="set-maxmsg" type="number" value="500" min="50" max="2000"/></div>
+        <div class="setr"><div><div class="setn">Site Name</div><div class="setd">Shown in browser tab</div></div><input class="set-inp" id="set-name" type="text" value="Chatterly" maxlength="30"/></div>
+        <button class="btn-save" onclick="saveSettings()">Save Changes ✓</button>
+      </div>
+      <div class="setc">
+        <div class="setct">🔑 Access Info</div>
+        <div class="setr"><div><div class="setn">Default Admin Email</div><div class="setd">admin@chatterly.com</div></div><span class="badge bp">Active</span></div>
+        <div class="setr"><div><div class="setn">Default Password</div><div class="setd">admin123</div></div><span class="badge br">⚠️ Change in prod</span></div>
+        <div class="setr"><div><div class="setn">Admin Secret Key</div><div class="setd">chatterly-admin-secret</div></div><span class="badge bg">API Access</span></div>
+        <div class="setr"><div><div class="setn">User Site</div><div class="setd">The main user-facing site</div></div><a href="/" target="_blank" style="background:rgba(76,201,240,.12);color:var(--blue);border:1px solid rgba(76,201,240,.2);border-radius:999px;padding:3px 11px;font-size:.72rem;font-weight:800;text-decoration:none">Open →</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const AK = 'chatterly-admin-secret';
+let SC = {};
+
+function af(url,o={}){o.headers={...(o.headers||{}),'x-admin-key':AK,'Content-Type':'application/json'};return fetch(url,o)}
+function toast(m,c){const t=document.getElementById('toast');t.textContent=m;t.style.borderColor=c||'rgba(155,93,229,.3)';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000)}
+function ago(ts){if(!ts)return'—';const d=Date.now()-ts,m=Math.floor(d/60000),h=Math.floor(m/60),dy=Math.floor(h/24);if(dy>0)return dy+'d ago';if(h>0)return h+'h ago';if(m>0)return m+'m ago';return'Just now'}
+function dur(s,e){if(!s)return'—';const d=(e||Date.now())-s,sec=Math.floor(d/1000),mi=Math.floor(sec/60);return mi<1?sec+'s':mi+'m '+sec%60+'s'}
+function sid(id){return id?id.substring(0,8)+'…':'—'}
+
+// Login
+document.getElementById('login-btn').addEventListener('click',async()=>{
+  const email=document.getElementById('ae').value.trim(),password=document.getElementById('ap').value;
+  const err=document.getElementById('lerr');err.classList.remove('show');
+  try{
+    const res=await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password})});
+    const data=await res.json();
+    if(!res.ok){err.textContent=data.error;err.classList.add('show');return}
+    if(!data.isAdmin){err.textContent='Access denied — not an admin account';err.classList.add('show');return}
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('sidebar').style.display='flex';
+    document.getElementById('mc').style.display='flex';
+    document.getElementById('adm-name').textContent=data.username;
+    loadDashboard();startPoll();
+  }catch(e){err.textContent='Connection error';err.classList.add('show')}
+});
+['ae','ap'].forEach(id=>document.getElementById(id).addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('login-btn').click()}));
+
+// Sign out
+document.getElementById('so-btn').addEventListener('click',()=>{
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('sidebar').style.display='none';
+  document.getElementById('mc').style.display='none';
+});
+
+// Nav
+const titles={dashboard:'Dashboard',users:'Users',reels:'Reels',live:'Live Chats',history:'Chat History',settings:'Settings'};
+const subs={dashboard:'Overview',users:'Manage & Ban',reels:'Manage Content',live:'Real-time Monitor',history:'All Sessions',settings:'Configuration'};
+document.querySelectorAll('.ni').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.ni').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    const p=btn.dataset.p;
+    document.getElementById('page-'+p).classList.add('active');
+    document.getElementById('tb-title').innerHTML=`${titles[p]} <span>${subs[p]}</span>`;
+    if(p==='users')loadUsers();if(p==='reels')loadReels();if(p==='live')loadLive();if(p==='history')loadHistory();if(p==='settings')loadSettings();
+  });
+});
+
+// Dashboard
+async function loadDashboard(){
+  try{
+    const res=await af('/api/admin/stats');const d=await res.json();
+    document.getElementById('s-users').textContent=d.totalUsers;
+    document.getElementById('s-online').textContent=d.onlineUsers;
+    document.getElementById('s-reels').textContent=d.totalReels;
+    document.getElementById('s-chats').textContent=d.totalChats;
+    document.getElementById('s-active').textContent=d.activeChats;
+    document.getElementById('s-banned').textContent=d.bannedUsers;
+    document.getElementById('lc-count').textContent=d.onlineUsers;
+    const r2=await af('/api/admin/chats');const ch=await r2.json();
+    const tb=document.getElementById('rc-body');tb.innerHTML='';
+    if(!ch.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:18px">No sessions yet</td></tr>';return}
+    ch.slice().reverse().slice(0,10).forEach(s=>{
+      tb.innerHTML+=`<tr><td style="font-family:monospace;font-size:.76rem;color:var(--muted)">${sid(s.id)}</td><td>${s.usernameA||'Guest'}</td><td>${s.usernameB||'Guest'}</td><td><span class="badge bb">${(s.messages||[]).length}</span></td><td>${dur(s.startedAt,s.endedAt)}</td><td>${s.endedAt?'<span class="badge bg">Ended</span>':'<span class="badge bo">Active</span>'}</td></tr>`;
+    });
+  }catch(e){console.error(e)}
+}
+
+// Users
+let AU=[];
+async function loadUsers(){const r=await af('/api/admin/users');AU=await r.json();document.getElementById('u-badge').textContent=AU.length+' users';renderUsers(AU)}
+function renderUsers(list){
+  const tb=document.getElementById('u-body');tb.innerHTML='';
+  if(!list.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:18px">No users found</td></tr>';return}
+  list.forEach(u=>{
+    tb.innerHTML+=`<tr>
+      <td><div style="display:flex;align-items:center;gap:9px"><div style="width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--purple),var(--pink));display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:800;color:white">${u.username[0].toUpperCase()}</div><div><div style="font-weight:800">${u.username}</div><div style="font-size:.7rem;color:var(--muted)">${u.isAdmin?'⭐ Admin':'User'}</div></div></div></td>
+      <td style="font-size:.8rem;color:var(--muted)">${u.email}</td>
+      <td><span class="badge bb">${u.chatCount||0}</span></td>
+      <td style="font-size:.78rem;color:var(--muted)">${ago(u.lastSeen)}</td>
+      <td>${u.banned?'<span class="badge br">🚫 Banned</span>':'<span class="badge bg">✓ Active</span>'}</td>
+      <td><div class="abs">
+        <button class="ab ${u.banned?'ab-unban':'ab-ban'}" onclick="toggleBan('${u.id}',${u.banned})">${u.banned?'Unban':'🚫 Ban'}</button>
+        ${!u.isAdmin?`<button class="ab ab-del" onclick="delUser('${u.id}')">🗑 Delete</button>`:''}
+      </div></td>
+    </tr>`;
+  });
+}
+document.getElementById('u-search').addEventListener('input',e=>{const q=e.target.value.toLowerCase();renderUsers(AU.filter(u=>u.username.toLowerCase().includes(q)||u.email.toLowerCase().includes(q)))});
+async function toggleBan(id,banned){if(!banned&&!confirm('Ban this user?'))return;await af(`/api/admin/users/${id}/ban`,{method:'POST',body:'{}'});toast(banned?'✅ User unbanned':'🚫 User banned');loadUsers()}
+async function delUser(id){if(!confirm('Delete this user permanently?'))return;await af(`/api/admin/users/${id}`,{method:'DELETE'});toast('🗑️ User deleted');loadUsers()}
+
+// Reels
+let AR=[];
+async function loadReels(){const r=await af('/api/admin/reels');AR=await r.json();document.getElementById('r-badge').textContent=AR.length+' reels';renderReels(AR)}
+function renderReels(list){
+  const tb=document.getElementById('r-body');tb.innerHTML='';
+  if(!list.length){tb.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:18px">No reels yet</td></tr>';return}
+  list.forEach(r=>{
+    tb.innerHTML+=`<tr>
+      <td><video class="rt" src="${r.url}" muted></video></td>
+      <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.caption||'<span style="color:var(--muted);font-style:italic">No caption</span>'}</td>
+      <td><span class="badge bp">${r.username}</span></td>
+      <td><span class="badge bpk">❤️ ${r.likes}</span></td>
+      <td style="color:var(--muted)">${r.views||0}</td>
+      <td><span class="badge bb">💬 ${(r.comments||[]).length}</span></td>
+      <td style="font-size:.76rem;color:var(--muted)">${ago(r.createdAt)}</td>
+      <td><button class="ab ab-del" onclick="delReel('${r.id}')">🗑 Delete</button></td>
+    </tr>`;
+  });
+}
+document.getElementById('r-search').addEventListener('input',e=>{const q=e.target.value.toLowerCase();renderReels(AR.filter(r=>(r.caption||'').toLowerCase().includes(q)||r.username.toLowerCase().includes(q)))});
+async function delReel(id){if(!confirm('Delete this reel?'))return;await af(`/api/admin/reels/${id}`,{method:'DELETE'});toast('🗑️ Reel deleted');loadReels()}
+
+// Live
+async function loadLive(){
+  const r=await af('/api/admin/live-chats');const data=await r.json();
+  const g=document.getElementById('l-grid');const e=document.getElementById('l-empty');
+  g.innerHTML='';
+  if(!data.length){g.classList.add('hidden');e.classList.remove('hidden');return}
+  g.classList.remove('hidden');e.classList.add('hidden');
+  data.forEach((c,i)=>{const d=document.createElement('div');d.className='lc';d.innerHTML=`<div class="lu"><div class="la">👤</div><span class="lv">vs</span><div class="la" style="background:linear-gradient(135deg,var(--blue),var(--green))">👤</div></div><div class="lm">Chat #${i+1} · Active now</div><div style="margin-top:8px"><span class="badge bg">🟢 Connected</span></div>`;g.appendChild(d)});
+}
+
+// History
+async function loadHistory(){
+  const r=await af('/api/admin/chats');const ch=await r.json();
+  const tb=document.getElementById('h-body');tb.innerHTML='';
+  if(!ch.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:18px">No chat history yet</td></tr>';return}
+  ch.slice().reverse().forEach(s=>{tb.innerHTML+=`<tr><td style="font-family:monospace;font-size:.76rem;color:var(--muted)">${sid(s.id)}</td><td>${s.usernameA||'Guest'}</td><td>${s.usernameB||'Guest'}</td><td><span class="badge bb">${(s.messages||[]).length}</span></td><td style="font-size:.76rem;color:var(--muted)">${ago(s.startedAt)}</td><td style="color:var(--muted)">${dur(s.startedAt,s.endedAt)}</td></tr>`});
+}
+
+// Settings
+async function loadSettings(){
+  const r=await af('/api/admin/settings');SC=await r.json();
+  document.getElementById('t-maint').classList.toggle('on',SC.maintenanceMode);
+  document.getElementById('t-guests').classList.toggle('on',SC.allowGuests);
+  document.getElementById('set-maxmsg').value=SC.maxMessageLength||500;
+  document.getElementById('set-name').value=SC.siteName||'Chatterly';
+}
+function toggleSetting(k){SC[k]=!SC[k];if(k==='maintenanceMode')document.getElementById('t-maint').classList.toggle('on',SC[k]);if(k==='allowGuests')document.getElementById('t-guests').classList.toggle('on',SC[k])}
+async function saveSettings(){
+  SC.maxMessageLength=parseInt(document.getElementById('set-maxmsg').value)||500;
+  SC.siteName=document.getElementById('set-name').value.trim()||'Chatterly';
+  await af('/api/admin/settings',{method:'PUT',body:JSON.stringify(SC)});
+  toast('✅ Settings saved!','rgba(6,214,160,.4)');
+}
+
+// Live poll
+function startPoll(){setInterval(async()=>{try{const r=await af('/api/admin/stats');const d=await r.json();document.getElementById('lc-count').textContent=d.onlineUsers;document.getElementById('s-online').textContent=d.onlineUsers;document.getElementById('s-active').textContent=d.activeChats}catch(e){}},5000)}
+</script>
+</body>
+</html>
